@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?if $(var.Platform) = "x64" ?>
+  <?define Dir="bin64" ?>
+  <?else ?>
+  <?define Dir="bin" ?>
+  <?endif ?>
+  <?include AddInChromeSetup.wxi?>
+  <Product
+      Id="$(var.ProductCode)"
+      Codepage="1252"
+      Language="1033"
+      Manufacturer="$(var.Manufacturer)"
+      Name="$(var.ProductName)"
+      UpgradeCode="$(var.UpgradeCode)"
+      Version="$(var.ProductVersion)">
+
+    <Package
+        Description="$(var.Description)"
+        Comments="$(var.Description)"
+        InstallerVersion="300"
+        Languages="1033"
+        Keywords="Installer,MSI,Database"
+        InstallPrivileges="limited"
+        InstallScope="perUser"
+        Compressed="yes"
+        Manufacturer="$(var.Manufacturer)"
+        Platform="$(var.Platform)" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="AddIn Example Chrome and Firefox" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+    <Property Id="ARPCONTACT" Value="$(var.Manufacturer)" />
+    <Property Id="ARPURLINFOABOUT" Value="$(var.CompanyURL)" />
+    <Property Id="ALLUSERS" Admin="no" Hidden="yes"/>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="AppDataFolder">
+        <Directory Id="MyCompanyDir" Name="$(var.Manufacturer)">
+          <Directory Id="Architecture" Name="$(var.Platform)">
+            <Directory Id="INSTALLFOLDER" Name="AddInChrome" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Guid="$(var.FileComponentsGuid)" Id="main" DisableRegistryReflection="yes" >
+        <File Id="binFile" Source="..\$(var.Dir)\AddInChr.exe" />
+        <File Source="com.1c.enterprise.addin.example.win.json" Id="json" Name="$(var.AddInName).json" />
+        <File Id="addin" Source="..\$(var.Dir)\AddInNative.dll" />
+        <RemoveFolder Id="Architecture" Directory="Architecture" On="uninstall"/>
+        <RemoveFolder Id="MyCompanyDir" Directory="MyCompanyDir" On="uninstall"/>
+        <RemoveFolder Id="inst" Directory="INSTALLFOLDER" On="uninstall"/>
+        <RegistryKey Id="reg" ForceCreateOnInstall="yes" Root="HKCU" Key="Software\Google\Chrome\NativeMessagingHosts">
+          <RegistryKey Key="$(var.AddInName)" ForceCreateOnInstall="yes">
+            <RegistryValue KeyPath="yes" Type="string" Value="[INSTALLFOLDER]$(var.AddInName).json" />
+          </RegistryKey>
+        </RegistryKey>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

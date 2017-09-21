@@ -1,0 +1,9 @@
+.OPTION EXPLICIT
+;    CabinetNameTemplate is the name of the output CAB file:
+.Set CabinetNameTemplate=AddIn_IEWindows_x86.cab
+.Set Cabinet=on
+.Set CompressionType=MSZIP
+.Set Compress=on
+"AddInIE.dll"
+"AddInNative.dll"
+"addin.inf"

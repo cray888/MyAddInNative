@@ -1,0 +1,14 @@
+CC=g++
+CFLAGS=-c -Wall -fPIC -m64 -I../../include
+LDFLAGS=-shared -m64 '-Wl,--whole-archive' -L../../lib -l1CEAdnWebNPAPILin64 '-Wl,--no-whole-archive'
+SOURCES=AddInNPAPI.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=../bin/AddInNPAPI64.so
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@

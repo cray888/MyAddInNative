@@ -1,0 +1,47 @@
+# Cmake script for project AddInChr
+# autor: 1C
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0 FATAL_ERROR)
+
+PROJECT(AddInChr)
+
+SET(AddInChr_SRC 
+    config.cpp
+    )
+    
+IF (UNIX)
+    SET_SOURCE_FILES_PROPERTIES(${AddInChr_SRC}
+              PROPERTIES COMPILE_FLAGS
+              "-finput-charset=WINDOWS-1251 -fPIC -Xlinker -z -Xlinker defs ${ARCH_FLAG}")
+              
+ELSE()
+    ADD_DEFINITIONS(-DWIN32 )
+ENDIF()
+
+SET(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/../lib)
+LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../lib)
+
+IF (UNIX)
+    FIND_LIBRARY(1CEADNWEBChr "1CEAddInWebChr${MySuffix1}${MySuffix2}")
+ELSE()
+    FIND_LIBRARY(1CEADNWEBChr "1CEAdnWebChr${MySuffix1}${MySuffix2}")
+ENDIF()
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/../include)
+
+ADD_EXECUTABLE(${PROJECT_NAME} ${AddInChr_SRC})
+
+IF("${CMAKE_SYSTEM}" MATCHES Linux)
+  SET(MYLIB -Wl,--whole-archive ${1CEADNWEBChr} -Wl,--no-whole-archive)
+ENDIF("${CMAKE_SYSTEM}" MATCHES Linux)
+
+IF (UNIX)
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${MYLIB} dl pthread gtk-x11-2.0 gdk-x11-2.0 gobject-2.0)
+ELSE()
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${1CEADNWEBChr} )
+ENDIF()
+
+SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES
+    PREFIX ""
+   CLEAN_DIRECT_OUTPUT 1
+   OUTPUT_NAME ${PROJECT_NAME}${MySuffix1}${MySuffix2} 
+   )
